@@ -3,19 +3,25 @@ import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { formatPhoneNumber, normalizePhoneNumber } from '../../utils.js';
 import { useId } from 'react';
+import { useDispatch } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice.js';
 
 import css from './ContactForm.module.css';
 
-export default function ContactForm({ onSubmit }) {
+export default function ContactForm() {
   const nameFieldId = useId();
   const numberFieldId = useId();
   const initialValues = { name: '', number: '' };
+  const dispatch = useDispatch();
+
   const handleSubmit = (values, actions) => {
-    onSubmit({
-      id: nanoid(),
-      name: values.name,
-      number: formatPhoneNumber(values.number),
-    });
+    dispatch(
+      addContact({
+        id: nanoid(),
+        name: values.name,
+        number: formatPhoneNumber(values.number),
+      })
+    );
     actions.resetForm();
   };
   const validationSchema = Yup.object().shape({
@@ -35,11 +41,11 @@ export default function ContactForm({ onSubmit }) {
       })
       .matches(
         /^\+?[0-9]+$/,
-        'Phone number can contain only numbers, white space and "-"',
+        'Phone number can contain only numbers, white space',
         true
       )
-      .min(3, 'Name must be at least 5 characters long')
-      .max(50, 'Name must be 20 characters or less')
+      .min(3, 'Number must be at least 5 characters long')
+      .max(50, 'Number must be 20 characters or less')
       .required('Required'),
   });
   return (
